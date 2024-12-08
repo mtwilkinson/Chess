@@ -1,0 +1,29 @@
+{
+  "name": "personal-website",
+  "version": "1.0.0",
+  "description": "This repo is set up similarly to your team repo. The backend folder \r contains the express routes, the frontend folder contains the React \r routes, and the common folder contains code used by the frontend and\r backend. To start the program select start from the run configurations \r in the top right, then click play. This will install the necessary \r dependencies, then start the backend and frontend.",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run build && npm-run-all --parallel start-Frontend start-Backend",
+    "dev": "yarn run dotenv -e .env -- turbo run dev",
+    "deploy": "turbo run deploy",
+    "build:database": "cd database && yarn run build",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "turbo run build --force",
+    "migrate": "cd database && prisma migrate dev"
+  },
+  "author": "mtwilkinson <122630959+mtwilkinson@users.noreply.github.com>",
+  "license": "ISC",
+  "dependencies": {
+    "turbo": "^1.13.2",
+    "dotenv": "^16.4.5",
+    "dotenv-cli": "^7.4.0"
+  },
+  "private": true,
+  "workspaces": [
+    "backend",
+    "database",
+    "frontend"
+  ],
+  "repository": "https://github.com/mtwilkinson/personal-website.git"
+}
