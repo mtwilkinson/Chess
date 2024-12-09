@@ -10,12 +10,15 @@
     "build:database": "cd database && yarn run build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "turbo run build --force",
-    "migrate": "cd database && prisma migrate dev"
+    "migrate": "cd database && prisma migrate dev",
+    "deploy:frontend": "cd frontend && yarn run deploy",
+    "deploy:backend": "cd backend && yarn run deploy"
   },
+  "packageManager": "yarn@1.22.22",
   "author": "mtwilkinson <122630959+mtwilkinson@users.noreply.github.com>",
   "license": "ISC",
   "dependencies": {
-    "turbo": "^1.13.2",
+    "turbo": "^2.1.2",
     "dotenv": "^16.4.5",
     "dotenv-cli": "^7.4.0"
   },

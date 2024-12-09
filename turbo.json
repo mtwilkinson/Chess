@@ -1,12 +1,12 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "pipeline": {
+  "tasks": {
     "dependencies": {
       "inputs": [],
       "outputs": []
     },
     "deploy": {
-      "dependsOn": ["^deploy"]
+      "dependsOn": ["^deploy", "build"]
     },
     "dev": {
       "cache": false,
@@ -15,8 +15,14 @@
     "frontend#build": {
       "dependsOn": ["database#build"]
     },
+    "backend#build": {
+      "dependsOn": ["database#build"]
+    },
     "build": {
-      "dependsOn": ["^dependencies", "^build"]
+      "dependsOn": [
+        "^dependencies",
+        "^build"
+      ]
     }
   }
 }
