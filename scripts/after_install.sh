@@ -1,13 +1,11 @@
 #!/bin/bash
 
-cd /home/ec2-user/tetris_clone_deploy
+cd /home/ec2-user/Chess_deploy
 
-rm -rf /home/ec2-user/tetris_clone/dist
-rm -rf /home/ec2-user/tetris_clone/backend-dist
+rm -rf /home/ec2-user/Chess/builds
 
-cp -arp dist /home/ec2-user/tetris_clone/
-cp -arp backend-dist /home/ec2-user/tetris_clone/
+cp -arp builds /home/ec2-user/Chess/
 
-sudo systemctl restart myapp.service
+sudo systemctl restart chess-ui.service
 
-sudo systemctl restart myapp-backend.service
+sudo systemctl restart chess-api.service

@@ -7,8 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node srctest/app",
     "dev": "yarn run dotenv -e .env -- nest start",
-    "deploy": "ts-node --transpile-only srctest/app.ts",
-    "db:build": "node ../backend-dist/builds/main"
+    "deploy": "node ../builds/backend-dist/main",
+    "db:build": "cd ../database && yarn run build"
   },
   "keywords": [],
   "author": "",
