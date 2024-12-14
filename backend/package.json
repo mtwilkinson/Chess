@@ -2,28 +2,69 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app.ts",
   "scripts": {
+    "build": "nest build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/app",
-    "dev": "yarn run dotenv -e .env -- nodemon src/app",
-    "deploy": "nodemon src/app",
-    "db:build": "cd ../database && yarn run build"
-
+    "start": "node srctest/app",
+    "dev": "yarn run dotenv -e .env -- nest start",
+    "deploy": "ts-node --transpile-only srctest/app.ts",
+    "db:build": "node ../backend-dist/builds/main"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "database": "workspace:*",
     "express": "^4.18.2",
+    "nest": "^0.1.6",
     "ts-node": "^10.9.2",
-    "database": "workspace:*"
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/mapped-types": "*",
+    "@nestjs/platform-express": "^10.0.0",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^20.11.16",
     "@types/nodemon": "^1.19.6",
     "nodemon": "^3.0.3",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "@nestjs/cli": "^10.0.0",
+    "@nestjs/schematics": "^10.0.0",
+    "@nestjs/testing": "^10.0.0",
+    "@types/jest": "^29.5.2",
+    "@types/supertest": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^8.42.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "jest": "^29.5.0",
+    "prettier": "^3.0.0",
+    "source-map-support": "^0.5.21",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.1.0",
+    "ts-loader": "^9.4.3",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
   }
 }

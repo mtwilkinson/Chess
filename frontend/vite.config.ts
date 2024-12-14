@@ -12,7 +12,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "build",
+    outDir: "../builds/frontend-dist",
   },
   preview: {
     host: "0.0.0.0",

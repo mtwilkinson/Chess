@@ -18,6 +18,7 @@ dist-ssr
 **/*.sql
 .env
 frontend/build
+builds/*/**
 
 # Editor directories and files
 .vscode/*

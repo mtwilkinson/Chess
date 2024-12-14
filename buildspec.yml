@@ -1,0 +1,22 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+
+    commands:
+      #install npm
+      - yarn install
+
+  build:
+    commands:
+      # run build command
+      - yarn run build
+
+artifacts:
+  # include the files required to run application
+  files:
+    - builds/**/*
+    - scripts/**/*
+    - appspec.yml
