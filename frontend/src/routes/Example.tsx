@@ -10,14 +10,14 @@ function Example() {
             feedback: 'is an SA'
         }
         //sends a post request the /api/high-score
-        const res = await axios.post("/api/example", data);
+        const res = await axios.post("/api/test", data);
         if(res.status === 200) {
             console.log("added feedback");
         }
     }
 
     async function getData() {
-        const res = await axios.get("api/example");
+        const res = await axios.get("api/test");
         console.log(res.data);
     }
 
