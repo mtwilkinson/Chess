@@ -4,6 +4,7 @@ import {createBrowserRouter} from "react-router-dom";
 import Homepage from "./routes/Homepage.tsx";
 import Example from "./routes/Example.tsx";
 import Navbar from "./components/Navbar.tsx";
+import Chess from "./routes/Chess.tsx";
 
 function App() {
     const router = createBrowserRouter([
@@ -22,6 +23,11 @@ function App() {
                     path: "/example",
                     errorElement: <h2>Something went wrong!</h2>,
                     element: <Example />,
+                },
+                {
+                    path: "/chess",
+                    errorElement: <h2>Something went wrong!</h2>,
+                    element: <Chess />,
                 },
             ],
         },
