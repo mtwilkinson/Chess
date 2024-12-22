@@ -1,76 +1,112 @@
-import React, {MutableRefObject, useLayoutEffect, useRef} from 'react';
+import React, {MouseEventHandler, MutableRefObject, useEffect, useLayoutEffect, useRef, useState} from 'react';
+import {copyBoard, copyHighlight, emptyHighlight, pieceMap} from "./pieces.ts";
 
-enum pieces {
-    pawnBlack = '/pieces/Chess_pdt60.png',
-    pawnWhite = '/pieces/Chess_plt60.png',
-    knightBlack = '/pieces/Chess_ndt60.png',
-    knightWhite = '/pieces/Chess_nlt60.png',
-    bishopBlack = '/pieces/Chess_bdt60.png',
-    bishopWhite = '/pieces/Chess_blt60.png',
-    rookBlack = '/pieces/Chess_rdt60.png',
-    rookWhite = '/pieces/Chess_rlt60.png',
-    queenBlack = '/pieces/Chess_qdt60.png',
-    queenWhite = '/pieces/Chess_qlt60.png',
-    kingBlack = '/pieces/Chess_kdt60.png',
-    kingWhite = '/pieces/Chess_klt60.png',
-}
 
-const pieceMap: Map<string, string> = new Map<string, string>();
-pieceMap.set('p', pieces.pawnBlack);
-pieceMap.set('P', pieces.pawnWhite);
-pieceMap.set('n', pieces.knightBlack);
-pieceMap.set('N', pieces.knightWhite);
-pieceMap.set('b', pieces.bishopBlack);
-pieceMap.set('B', pieces.bishopWhite);
-pieceMap.set('r', pieces.rookBlack);
-pieceMap.set('R', pieces.rookWhite);
-pieceMap.set('q', pieces.queenBlack);
-pieceMap.set('Q', pieces.queenWhite);
-pieceMap.set('k', pieces.kingBlack);
-pieceMap.set('K', pieces.kingWhite);
+
 
 type Props = {
     board: string[][];
     highlights: number[][];
+    setBoard: (board: string[][]) => void;
+    setHighlight: (board: number[][]) => void;
+
 }
 function Chessboard(props: Props) {
     const canvasRef = useRef() as MutableRefObject<HTMLCanvasElement>;
+    const [xOffset, setXOffset] = useState(0);
+    const [yOffset, setYOffset] = useState(0);
+    const [canvasX, setCanvasX] = useState(0);
+    const [canvasY, setCanvasY] = useState(0);
+    const [startCoordinates, setStartCoordinates] = useState<number[]>([-1, -1]);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        setXOffset(canvas ? canvas.getBoundingClientRect().x : 0);
+        setYOffset(canvas ? canvas.getBoundingClientRect().y : 0);
+        setCanvasX(canvas ? canvas.getBoundingClientRect().width : 0);
+        setCanvasY(canvas ? canvas.getBoundingClientRect().height : 0);
+    }, []);
+
 
     useLayoutEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle = "#f0d9b5";
-        ctx.fillRect(0, 0, 800, 800)
 
-        ctx.fillStyle = "#b58863";
-        for (let i = 0; i < 4; i++ ) {
-            for (let j = 0; j < 4; j++) {
-                ctx.fillRect(100 + 200 * j, 200 * i, 100, 100)
-                ctx.fillRect(200 * j, 200 * i + 100, 100, 100)
-            }
-        }
-        const img = new Image();
-
-        // Image URL should be a path to your PNG file
-        img.src = pieces.bishopBlack;
+        // fill squares
         for (let i = 0; i < 8; i++ ) {
+            ctx.fillStyle = ctx.fillStyle === "#b58863" ? "#f0d9b5" : "#b58863";
             for (let j = 0; j < 8; j++) {
-                if (props.board[i][j] !== '') {
-                    const img = new Image();
-                    img.src = pieceMap.get(props.board[i][j]);
-                    img.onload = function() {
-                        // Draw the image on the canvas once it's loaded
-                        ctx.drawImage(img, 100*j, 100*i, 100, 100);
-                    };
-
+                if (props.highlights[i][j] === 1) {
+                    const temp = ctx.fillStyle;
+                    ctx.fillStyle = '#9f9f9f';
+                    ctx.fillRect(100 * j, 100 * i, 100, 100);
+                    ctx.fillStyle = temp === "#b58863" ? "#f0d9b5" : "#b58863";
+                } else if (props.highlights[i][j] === 2) {
+                    const temp = ctx.fillStyle;
+                    ctx.fillStyle = '#b02929';
+                    ctx.fillRect(100 * j, 100 * i, 100, 100);
+                    ctx.fillStyle = temp === "#b58863" ? "#f0d9b5" : "#b58863";
+                } else {
+                    ctx.fillStyle = ctx.fillStyle === "#b58863" ? "#f0d9b5" : "#b58863";
+                    ctx.fillRect(100 * j, 100 * i, 100, 100);
                 }
             }
         }
 
+        // load pieces
+        for (let i = 0; i < 8; i++ ) {
+            for (let j = 0; j < 8; j++) {
+                if (props.board[i][j] !== '') {
+                    ctx.drawImage(pieceMap.get(props.board[i][j]), 100*j, 100*i, 100, 100);
+                }
+            }
+        }
+    }, [props.highlights, props.board]); // Empty dependency array means this effect runs once on mount
 
-    }, []); // Empty dependency array means this effect runs once on mount
+    const handleMouseClick: MouseEventHandler<HTMLCanvasElement> = (event) => {
+        const {clientX, clientY} = event;
+        const x = Math.floor((clientX - xOffset) * 8/canvasX);
+        const y = Math.floor((clientY - yOffset) * 8/canvasY);
+        if (startCoordinates[0] !== -1) {
+            const tempBoard = copyBoard(props.board);
+            const tempPiece = tempBoard[startCoordinates[0]][startCoordinates[1]];
+            tempBoard[startCoordinates[0]][startCoordinates[1]] = '';
+            tempBoard[y][x] = tempPiece;
+            props.setBoard(tempBoard)
+            setStartCoordinates([-1, -1]);
+            props.setHighlight(emptyHighlight());
+        } else {
+            let temp: number[][] = emptyHighlight();
+            temp[y][x] = 2;
+            setStartCoordinates([y, x])
+            props.setHighlight(temp);
+        }
+    }
 
-    return <canvas className={'h-5/6 aspect-square border-2 border-blue-950'} ref={canvasRef} width={800} height={800} />;
+    const handleMouseMove: MouseEventHandler<HTMLCanvasElement> = (event) => {
+        const {clientX, clientY} = event;
+        const x = (clientX - xOffset) * 800/canvasX;
+        const y = (clientY - yOffset) * 800/canvasY;
+        let temp: number[][] = copyHighlight(props.highlights);
+        for (let i = 0; i < 8; i++ ) {
+            for (let j = 0; j < 8; j++) {
+                if (i === Math.floor(y/100) && j === Math.floor(x/100) && temp[i][j] < 2) {
+                    temp[i][j] = 1;
+                } else if (temp[i][j] === 1) {
+                    temp[i][j] = 0;
+                }
+            }
+        }
+        props.setHighlight(temp);
+    }
+
+    const handleMouseLeave: MouseEventHandler<HTMLCanvasElement> = (event) => {
+        props.setHighlight(emptyHighlight());
+        setStartCoordinates([-1, -1])
+    }
+
+    return <canvas className={'h-5/6 aspect-square border-2 border-blue-950'} onClick={handleMouseClick} ref={canvasRef}
+                   onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} width={800} height={800} />;
 }
 
 export default Chessboard;

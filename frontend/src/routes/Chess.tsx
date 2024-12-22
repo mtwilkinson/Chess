@@ -16,7 +16,7 @@ const startingHighlight: number[][] = [
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
@@ -28,7 +28,7 @@ function Chess() {
 
     return (
         <div className={"flex flex-col overflow-clip align-middle justify-center items-center"}>
-            <Chessboard  board={board} highlights={highlight}/>
+            <Chessboard  board={board} highlights={highlight} setBoard={setBoard} setHighlight={setHighlight}/>
         </div>
     );
 }
