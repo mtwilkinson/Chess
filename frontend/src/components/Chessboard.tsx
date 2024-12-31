@@ -1,5 +1,7 @@
 import React, {MouseEventHandler, MutableRefObject, useEffect, useLayoutEffect, useRef, useState} from 'react';
-import {copyBoard, copyHighlight, emptyHighlight, pieceMap} from "./pieces.ts";
+import {copyBoard, copyHighlight, emptyHighlight} from "../algorithms/pieces.ts";
+import {pieceMap} from "./images.ts";
+import {legalMoves} from "../algorithms/chess.ts";
 
 
 
@@ -46,6 +48,11 @@ function Chessboard(props: Props) {
                     ctx.fillStyle = '#b02929';
                     ctx.fillRect(100 * j, 100 * i, 100, 100);
                     ctx.fillStyle = temp === "#b58863" ? "#f0d9b5" : "#b58863";
+                } else if (props.highlights[i][j] === 3) {
+                    const temp = ctx.fillStyle;
+                    ctx.fillStyle = '#36b247';
+                    ctx.fillRect(100 * j, 100 * i, 100, 100);
+                    ctx.fillStyle = temp === "#b58863" ? "#f0d9b5" : "#b58863";
                 } else {
                     ctx.fillStyle = ctx.fillStyle === "#b58863" ? "#f0d9b5" : "#b58863";
                     ctx.fillRect(100 * j, 100 * i, 100, 100);
@@ -68,17 +75,22 @@ function Chessboard(props: Props) {
         const x = Math.floor((clientX - xOffset) * 8/canvasX);
         const y = Math.floor((clientY - yOffset) * 8/canvasY);
         if (startCoordinates[0] !== -1) {
-            const tempBoard = copyBoard(props.board);
-            const tempPiece = tempBoard[startCoordinates[0]][startCoordinates[1]];
-            tempBoard[startCoordinates[0]][startCoordinates[1]] = '';
-            tempBoard[y][x] = tempPiece;
-            props.setBoard(tempBoard)
-            setStartCoordinates([-1, -1]);
+            if (props.highlights[y][x] === 3) {
+                const tempBoard = copyBoard(props.board);
+                const tempPiece = tempBoard[startCoordinates[0]][startCoordinates[1]];
+                tempBoard[startCoordinates[0]][startCoordinates[1]] = '';
+                tempBoard[y][x] = tempPiece;
+                props.setBoard(tempBoard)
+                setStartCoordinates([-1, -1]);
+            } else {
+                setStartCoordinates([-1, -1]);
+            }
             props.setHighlight(emptyHighlight());
-        } else {
+        } else if (props.board[y][x] !== '') {
             let temp: number[][] = emptyHighlight();
             temp[y][x] = 2;
             setStartCoordinates([y, x])
+            temp = legalMoves(temp, props.board, x, y);
             props.setHighlight(temp);
         }
     }
