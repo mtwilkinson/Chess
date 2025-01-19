@@ -1,7 +1,16 @@
-import React, {MouseEventHandler, MutableRefObject, useEffect, useLayoutEffect, useRef, useState} from 'react';
+import React, {
+    CSSProperties,
+    MouseEventHandler,
+    MutableRefObject,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState
+} from 'react';
 import {copyBoard, copyHighlight, emptyHighlight} from "../algorithms/pieces.ts";
 import {pieceMap} from "./images.ts";
 import {legalMoves} from "../algorithms/chess.ts";
+import Popup from "./PickPiece.tsx";
 
 
 
@@ -11,7 +20,8 @@ type Props = {
     highlights: number[][];
     setBoard: (board: string[][]) => void;
     setHighlight: (board: number[][]) => void;
-
+    moveNumber: number;
+    setMoveNumber: (move: number) => void;
 }
 function Chessboard(props: Props) {
     const canvasRef = useRef() as MutableRefObject<HTMLCanvasElement>;
@@ -20,6 +30,7 @@ function Chessboard(props: Props) {
     const [canvasX, setCanvasX] = useState(0);
     const [canvasY, setCanvasY] = useState(0);
     const [startCoordinates, setStartCoordinates] = useState<number[]>([-1, -1]);
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -28,7 +39,6 @@ function Chessboard(props: Props) {
         setCanvasX(canvas ? canvas.getBoundingClientRect().width : 0);
         setCanvasY(canvas ? canvas.getBoundingClientRect().height : 0);
     }, []);
-
 
     useLayoutEffect(() => {
         const canvas = canvasRef.current;
@@ -63,7 +73,7 @@ function Chessboard(props: Props) {
         // load pieces
         for (let i = 0; i < 8; i++ ) {
             for (let j = 0; j < 8; j++) {
-                if (props.board[i][j] !== '') {
+                if (props.board[i][j] !== ' ') {
                     ctx.drawImage(pieceMap.get(props.board[i][j]), 100*j, 100*i, 100, 100);
                 }
             }
@@ -78,20 +88,53 @@ function Chessboard(props: Props) {
             if (props.highlights[y][x] === 3) {
                 const tempBoard = copyBoard(props.board);
                 const tempPiece = tempBoard[startCoordinates[0]][startCoordinates[1]];
-                tempBoard[startCoordinates[0]][startCoordinates[1]] = '';
+
+                // Handle castling
+                if (startCoordinates[1] === 4 && startCoordinates[0] === 7 &&
+                    tempBoard[startCoordinates[0]][startCoordinates[1]] === 'K') {
+                    if (x === 6 && y === 7) {
+                        tempBoard[7][5] = 'R';
+                        tempBoard[7][7] = ' ';
+                    } else if (x === 2 && y === 7) {
+                        tempBoard[7][3] = 'R';
+                        tempBoard[7][0] = ' ';
+                    }
+                } else if (startCoordinates[1] === 4 && startCoordinates[0] === 0 &&
+                    tempBoard[startCoordinates[0]][startCoordinates[1]] === 'k') {
+                    if (x === 6 && y === 0) {
+                        tempBoard[0][5] = 'r';
+                        tempBoard[0][7] = ' ';
+                    } else if (x === 2 && y === 0) {
+                        tempBoard[0][3] = 'r';
+                        tempBoard[0][0] = ' ';
+                    }
+                }
+
+                // Promote Pawn
+                if (tempBoard[startCoordinates[0]][startCoordinates[1]].toUpperCase() === 'P' && (y === 0 || y === 7)) {
+                    setIsPopupOpen(true);
+                } else {
+                    props.setMoveNumber(props.moveNumber + 1);
+                }
+
+                tempBoard[startCoordinates[0]][startCoordinates[1]] = ' ';
                 tempBoard[y][x] = tempPiece;
+
                 props.setBoard(tempBoard)
                 setStartCoordinates([-1, -1]);
+
             } else {
                 setStartCoordinates([-1, -1]);
             }
             props.setHighlight(emptyHighlight());
-        } else if (props.board[y][x] !== '') {
-            let temp: number[][] = emptyHighlight();
-            temp[y][x] = 2;
-            setStartCoordinates([y, x])
-            temp = legalMoves(temp, props.board, x, y);
-            props.setHighlight(temp);
+        } else if (props.board[y][x] !== ' ') {
+            if ((props.board[y][x] === props.board[y][x].toUpperCase()) === (props.moveNumber % 2 === 0)) {
+                let temp: number[][] = emptyHighlight();
+                temp[y][x] = 2;
+                setStartCoordinates([y, x])
+                temp = legalMoves(temp, props.board, x, y);
+                props.setHighlight(temp);
+            }
         }
     }
 
@@ -117,8 +160,32 @@ function Chessboard(props: Props) {
         setStartCoordinates([-1, -1])
     }
 
-    return <canvas className={'h-5/6 aspect-square border-2 border-blue-950'} onClick={handleMouseClick} ref={canvasRef}
-                   onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} width={800} height={800} />;
+    function promote_pawn(piece: String) {
+        setIsPopupOpen(false);
+        const tempBoard = copyBoard(props.board);
+        for(let i = 0; i < 8; i++) {
+            if (tempBoard[0][i].toUpperCase() === 'P') {
+                tempBoard[0][i] = piece;
+            }
+            if (tempBoard[7][i].toUpperCase() === 'P') {
+                tempBoard[7][i] = piece;
+            }
+        }
+        props.setMoveNumber(props.moveNumber + 1);
+        props.setBoard(tempBoard);
+    }
+
+    return (
+        <div className={'h-5/6 aspect-square border-2 border-blue-950'}>
+            <canvas className={'h-full border-2 border-blue-950'} onClick={handleMouseClick}
+                    ref={canvasRef}
+                    onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} width={800} height={800}/>
+            <Popup isOpen={isPopupOpen} white={props.moveNumber%2 === 1} onClose={promote_pawn}>
+                <h2>Welcome to the Popup!</h2>
+                <p>This is a simple modal popup in React.</p>
+            </Popup>
+        </div>
+    );
 }
 
 export default Chessboard;

@@ -19,3 +19,36 @@ model Feedback {
   name     String
   feedback String
 }
+
+model Tournament {
+  id          Int    @id @default(autoincrement())
+  name        String
+  date        String
+  location    String
+  timeControl String
+  game        Game[] @relation("games")
+}
+
+model Game {
+  id          Int    @id @default(autoincrement())
+  tournament  Int
+  game        Int
+  whiteName   String
+  whiteRating Int
+  blackName   String
+  blackRating Int
+
+  tournamentRef Tournament @relation("games", fields: [tournament], references: [id], onDelete: Cascade)
+  move          Move[]     @relation("moves")
+}
+
+model Move {
+  game       Int
+  moveNumber Int
+  boardState String
+  move       String
+
+  gameRef Game @relation("moves", fields: [game], references: [id], onDelete: Cascade)
+
+  @@id(name: "gameId", [game, moveNumber])
+}
